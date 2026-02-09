@@ -231,10 +231,9 @@ export default function BookingsWithDragDrop() {
             throw new Error("予約IDの形式が不正です。");
         }
 
-        const response = await apiClient("/detailBooking",{
+        const response = await apiClient(`/bookings/${numericId}`,{
             method: "PUT",
             body: JSON.stringify({
-                id: numericId,
                 start: bookingToUpdate?.start,
                 stretchCourse: bookingToUpdate?.stretchCourse,
                 color: bookingToUpdate?.color

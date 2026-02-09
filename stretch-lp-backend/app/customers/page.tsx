@@ -292,7 +292,7 @@ export default function Customers () {
 
     const setNewBookingData = async () => {
         console.log(bookingData);
-        const response = await apiClient("/setBooking",{
+        const response = await apiClient("/booking-contacts",{
             method: "POST",
             body: JSON.stringify({
                 id: Number(bookingData.id),
