@@ -177,7 +177,7 @@ export const NotificationCenter = ({
                                             </div>
                                             <div className="flex justify-between items-start mb-1">
                                                 <p className="text-sm truncate pr-2 font-bold text-gray-900">
-                                                    予約時刻:{n.bookingDate}
+                                                    予約日時:{n.bookingDate}
                                                 </p>
                                             </div>
                                             <p className="text-xs text-gray-600 mb-1 line-clamp-2 leading-relaxed">

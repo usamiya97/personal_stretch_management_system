@@ -50,8 +50,14 @@ export const useNotifications = () => {
                         bookingId: String(n.bookingId), // IDの型変換
                         customerName: n.customerName,
                         type: convertType(n.notificationType), // 下で定義する変換関数を使う
-                        time: new Date(n.createdAt).toLocaleTimeString('ja-JP', { hour: '2-digit',minute: '2-digit' }),
-                        bookingDate: new Date(n.bookingDate).toLocaleTimeString('ja-JP', { hour: '2-digit',minute: '2-digit' }),
+                        time: new Date(n.createdAt).toLocaleTimeString('ja-JP', { hour: '2-digit', minute: '2-digit' }),
+                        bookingDate: new Date(n.bookingDate).toLocaleString('ja-JP', {
+                            year: 'numeric',
+                            month: '2-digit',
+                            day: '2-digit',
+                            hour: '2-digit',
+                            minute: '2-digit',
+                        }),
                         message: n.message,
                         isRead: n.isRead,
                         createdAt: n.createdAt
