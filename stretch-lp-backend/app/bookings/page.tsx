@@ -429,7 +429,7 @@ export default function BookingsWithDragDrop() {
                                                                             : isTodayDate
                                                                             ? 'bg-cyan-100 text-cyan-700 font-bold border-2 border-cyan-400'
                                                                             : hasBooking
-                                                                                ? 'bg-emerald-100 text-emerald-800 font-semibold border border-emerald-300'
+                                                                                ? 'bg-green-100 text-green-800 font-semibold border border-green-300'
                                                                                 : 'hover:bg-cyan-50 text-gray-700 hover:scale-105'
                                                                     }`}
                                                                     onClick={() => {
@@ -445,8 +445,23 @@ export default function BookingsWithDragDrop() {
                                                 </div>
                                             </div>
                                             
-                                            {/* フッター */}
+                                            {/* フッター（凡例 + アクション） */}
                                             <div className="border-t border-cyan-100 p-3 bg-cyan-50/30">
+                                                {/* カレンダー用の色の凡例 */}
+                                                <div className="mb-2 flex flex-wrap items-center gap-3 text-[11px] text-cyan-800">
+                                                    <div className="flex items-center gap-1">
+                                                        <span className="inline-block w-3 h-3 rounded bg-gradient-to-br from-cyan-500 to-blue-500" />
+                                                        <span>選択中の日</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-1">
+                                                        <span className="inline-block w-3 h-3 rounded border-2 border-cyan-400 bg-cyan-100" />
+                                                        <span>今日</span>
+                                                    </div>
+                                                    <div className="flex items-center gap-1">
+                                                        <span className="inline-block w-3 h-3 rounded bg-green-400" />
+                                                        <span>予約あり</span>
+                                                    </div>
+                                                </div>
                                                 <button
                                                     className="w-full px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all font-medium text-sm"
                                                     onClick={() => {
