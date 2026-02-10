@@ -413,6 +413,12 @@ export default function BookingsWithDragDrop() {
                                                             
                                                             const isSelected = isSameDay(date, currentDate);
                                                             const isTodayDate = isToday(date);
+                                                            const hasBooking = bookings.some((b) => 
+                                                                isSameDay(
+                                                                    startOfDay(new Date(b.start)),
+                                                                    startOfDay(date)
+                                                                )
+                                                            );
                                                             
                                                             return (
                                                                 <button
@@ -422,7 +428,9 @@ export default function BookingsWithDragDrop() {
                                                                             ? 'bg-gradient-to-br from-cyan-500 to-blue-500 text-white shadow-lg scale-105'
                                                                             : isTodayDate
                                                                             ? 'bg-cyan-100 text-cyan-700 font-bold border-2 border-cyan-400'
-                                                                            : 'hover:bg-cyan-50 text-gray-700 hover:scale-105'
+                                                                            : hasBooking
+                                                                                ? 'bg-emerald-100 text-emerald-800 font-semibold border border-emerald-300'
+                                                                                : 'hover:bg-cyan-50 text-gray-700 hover:scale-105'
                                                                     }`}
                                                                     onClick={() => {
                                                                         setCurrentDate(startOfDay(date));
