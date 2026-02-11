@@ -745,9 +745,6 @@ export default function BookingsWithDragDrop() {
                                 onDelete={(id: string) => deleteBooking(id)}
                                 isDeleting={isDeleting}
                                 isUpdating={isUpdating}
-                                
-                                // ★ ここで渡す！
-                                // モーダルから「編集後のデータ(updated)」が返ってくるので、それを changeBooking に渡す
                                 onSave={(updatedBooking : Booking) => changeBooking(updatedBooking)}
                             />
                         )}
