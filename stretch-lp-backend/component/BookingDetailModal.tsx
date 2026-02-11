@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Booking } from "@/app/types";
 import { calculateNewDateString } from "@/utils/bookingDateUtils";
 import { generateTimeOptions, getSortedStatusOptions } from "@/utils/dateUtils";
@@ -19,6 +19,11 @@ const statusCourse = [
 export const BookingDetailModal = ({ booking, onClose, onSave, onDelete } : Props) => {
 
     const [editingBooking, setEditingBooking] = useState<Booking>(booking);
+
+    // bookingプロップが変更されたときにeditingBookingを更新
+    useEffect(() => {
+        setEditingBooking(booking);
+    }, [booking]);
 
     const timeOptions = generateTimeOptions();
 
@@ -50,17 +55,22 @@ export const BookingDetailModal = ({ booking, onClose, onSave, onDelete } : Prop
             {/* 2. モーダルパネル (コンテンツ本体) */}
             <div
                 // モーダル内部のクリックが、背景のonClickに伝播(バブリング)するのを防ぐ
-                onClick={(e) => e.stopPropagation()} 
+                onClick={(e) => {
+                    e.stopPropagation();
+                }} 
                 // モーダルのスタイル (白背景、角丸、影、サイズ)
                 className="bg-white rounded-lg shadow-xl w-full max-w-lg mx-4 text-gray-900"
             >
                 {/* --- ヘッダー --- */}
-                <div className="flex justify-between items-center p-4 border-b bg-gradient-to-r from-cyan-500 to-blue-500">
+                <div className="flex justify-between items-center p-4 border-b bg-gradient-to-r from-cyan-500 to-blue-500 rounded-t-lg">
                     <h3 className="text-lg font-semibold text-white">
                         予約詳細
                     </h3>
                     <button
-                       onClick={(e) => e.stopPropagation()}
+                       onClick={(e) => { 
+                            e.stopPropagation();
+                            onClose();
+                       }}
                         className="text-gray-400 hover:text-gray-600 p-1 rounded-full"
                     >
                         {/* Xボタン (Heroiconsより) */}
@@ -162,7 +172,8 @@ export const BookingDetailModal = ({ booking, onClose, onSave, onDelete } : Prop
                         className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-gray-300 rounded-lg hover:bg-red-700"
                         onClick={(e) => {
                             alert(`ID: ${editingBooking.id} を削除します`);
-                            e.stopPropagation()
+                            e.stopPropagation();
+                            onClose();
                         }}
                     >
                         削除

@@ -82,6 +82,16 @@ export default function BookingsWithDragDrop() {
         }
     }, [calendarOpen]);
 
+    // clientDataが更新されたときに、selectedBookingも更新する
+    useEffect(() => {
+        if (selectedBooking && clientData.length > 0) {
+            const updatedBooking = clientData.find(b => b.id === selectedBooking.id);
+            if (updatedBooking) {
+                setSelectedBooking(updatedBooking);
+            }
+        }
+    }, [clientData]);
+
     const bookings = bookingsState.length > 0 ? bookingsState : clientData;
 
     // 通知機能
@@ -243,6 +253,7 @@ export default function BookingsWithDragDrop() {
         if (response.ok) {
             console.log("更新成功");
             await fetchBookings();
+            // 変更成功後はモーダルを閉じる
             setSelectedBooking(null);
         } else {
             console.error("更新失敗");
