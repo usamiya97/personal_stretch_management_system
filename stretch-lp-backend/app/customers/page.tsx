@@ -165,7 +165,7 @@ export default function Customers () {
     const statusOptions = [
         { label: "仮予約", color: "#f59e0b" },
         { label: "予約確定", color: "#3b82f6" },
-        { label: "完了", color: "#22c55e" },
+        { label: "完了", color: "#7b7b7b" },
         { label: "キャンセル", color: "#ef4444" },
     ];
 
@@ -306,9 +306,13 @@ export default function Customers () {
         if (!response.ok) {
             console.error("登録失敗");
         }
+        const data = await response.json();
+        setSuccessMessage(data.success);
 
-        console.log(response.body);
-
+         // 3秒後に消す
+        setTimeout(() => {
+            setSuccessMessage(null);
+        }, 3000);
 
         setCustomerBooking(null);
     }

@@ -4,7 +4,7 @@ import { BackendBooking, CalendarEvent } from "@/app/types";// 適切なパス�
 const getColor = (status: string): string => {
     switch (status) {
         case 'CONFIRMED':
-            return '#22c55e';
+            return '#7b7b7b';
         case 'PENDING':
             return '#f59e0b';
         case 'CANCELLED':

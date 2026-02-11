@@ -8,6 +8,8 @@ type Props = {
     onClose: () => void;
     onSave: (updatedBooking: Booking) => void;
     onDelete: (id: string) => void;
+    isDeleting?: boolean;
+    isUpdating?: boolean;
 };
 
 const statusCourse = [
@@ -16,7 +18,7 @@ const statusCourse = [
     { course: "80分", value: 80 },
 ];
 
-export const BookingDetailModal = ({ booking, onClose, onSave, onDelete } : Props) => {
+export const BookingDetailModal = ({ booking, onClose, onSave, onDelete, isDeleting = false, isUpdating = false } : Props) => {
 
     const [editingBooking, setEditingBooking] = useState<Booking>(booking);
 
@@ -169,23 +171,36 @@ export const BookingDetailModal = ({ booking, onClose, onSave, onDelete } : Prop
                 <div className="flex items-center justify-between p-4 border-t border-gray-200 bg-gray-50 rounded-b-lg">
                     {/* 削除ボタン (左寄せ) */}
                     <button
-                        className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-gray-300 rounded-lg hover:bg-red-700"
+                        className="px-4 py-2 text-sm font-medium text-white bg-red-600 border border-gray-300 rounded-lg hover:bg-red-700 disabled:opacity-50 disabled:cursor-not-allowed flex items-center gap-2"
                         onClick={(e) => {
-                            alert(`ID: ${editingBooking.id} を削除します`);
                             e.stopPropagation();
-                            onClose();
+                            onDelete(editingBooking.id);
                         }}
+                        disabled={isDeleting || isUpdating}
                     >
-                        削除
+                        {isDeleting && (
+                            <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                            </svg>
+                        )}
+                        {isDeleting ? '削除中...' : '削除'}
                     </button>
                     
                     {/* 閉じる・編集ボタン (右寄せ) */}
                     <div className="space-x-3">
                         <button
-                            className="px-4 py-2 text-sm font-medium text-white bg-green-500 border border-gray-300 rounded-lg hover:bg-green-700"
+                            className="px-4 py-2 text-sm font-medium text-white bg-green-500 border border-gray-300 rounded-lg hover:bg-green-700 disabled:opacity-50 disabled:cursor-not-allowed"
                             onClick={() => onSave(editingBooking)}
+                            disabled={isUpdating || isDeleting}
                         >
-                            変更
+                            {isUpdating && (
+                                <svg className="animate-spin h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                </svg>
+                            )}
+                            {isUpdating ? '変更中...' : '変更'}
                         </button>
                         <button
                             className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700"
