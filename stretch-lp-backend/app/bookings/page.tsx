@@ -4,7 +4,7 @@ import Sidebar from "@/component/Sidebar";
 import { BookingDetailModal } from "@/component/BookingDetailModal";
 import { apiClient } from "@/utils/apiClient";
 import { useMemo, useState, useRef, useEffect } from "react";
-import { BackendBooking, CalendarEvent, Booking, Notification} from "../types";
+import { BackendBooking, CalendarEvent, Booking} from "../types";
 import { convertToCalendarEvents } from "@/utils/bookingExchange";
 import { NotificationCenter } from "@/component/NotificationCenter";
 import { useNotifications } from '@/component/useNotifications';

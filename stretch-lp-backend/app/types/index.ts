@@ -6,6 +6,7 @@ export type CalendarEvent = {
     stretchCourse: number;
     end: string;
     color?: string;
+    customerId?: number;
 };
 
 // バックエンドから返される顧客オブジェクトの型
@@ -47,6 +48,7 @@ export type Booking = {
     end: string;
     stretchCourse: number;
     color?: string;
+    customerId?: number;
 };
 
 export type Notification = {
@@ -59,11 +61,3 @@ export type Notification = {
     isRead: boolean;
     createdAt: string;
 };
-
-//　Long id,
-// Long bookingId,
-// String bookingTitle,
-// NotificationType notificationType, // NEW, CANCEL, REMINDER
-// String message,
-// boolean isRead,
-// LocalDateTime createdAt

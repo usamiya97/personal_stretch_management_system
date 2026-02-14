@@ -58,7 +58,9 @@ export const convertToCalendarEvents = (bookingList: BackendBooking[]): Calendar
             end: toISOStringWithoutZ(endDateTime), 
             stretchCourse:booking.choiseStretch,
             // color: ステータスに応じた色
-            color: getColor(booking.status), 
+            color: getColor(booking.status),
+            // customerId: 顧客IDを保持
+            customerId: booking.customers.id,
         };
 
         return event;

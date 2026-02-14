@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import { Booking } from "@/app/types";
 import { calculateNewDateString } from "@/utils/bookingDateUtils";
 import { generateTimeOptions, getSortedStatusOptions } from "@/utils/dateUtils";
@@ -19,7 +20,7 @@ const statusCourse = [
 ];
 
 export const BookingDetailModal = ({ booking, onClose, onSave, onDelete, isDeleting = false, isUpdating = false } : Props) => {
-
+    const router = useRouter();
     const [editingBooking, setEditingBooking] = useState<Booking>(booking);
 
     // bookingプロップが変更されたときにeditingBookingを更新
@@ -28,6 +29,20 @@ export const BookingDetailModal = ({ booking, onClose, onSave, onDelete, isDelet
     }, [booking]);
 
     const timeOptions = generateTimeOptions();
+
+    // 顧客詳細ページに遷移（customers/page.tsxの「詳細」ボタンと同じ動作を実行）
+    const handleNavigateToCustomer = () => {
+        if (editingBooking.customerId !== undefined) {
+            // モーダルを先に閉じる
+            onClose();
+            // 顧客詳細ページに遷移し、URLパラメータで顧客IDを渡す
+            // customers/page.tsxでURLパラメータを読み取り、setCustomerIdを呼び出す（「詳細」ボタンと同じ動作）
+            // 少し待ってから遷移することで、モーダルの閉じるアニメーションを確実に実行
+            setTimeout(() => {
+                router.push(`/customers?customerId=${String(editingBooking.customerId)}`);
+            }, 100);
+        }
+    };
 
     const handleDateChange = (e: React.ChangeEvent<HTMLSelectElement>, booking: Booking,part: string) => {
         const newStart = calculateNewDateString(editingBooking.start, part, e.target.value);
@@ -68,18 +83,41 @@ export const BookingDetailModal = ({ booking, onClose, onSave, onDelete, isDelet
                     <h3 className="text-lg font-semibold text-white">
                         予約詳細
                     </h3>
-                    <button
-                       onClick={(e) => { 
-                            e.stopPropagation();
-                            onClose();
-                       }}
-                        className="text-gray-400 hover:text-gray-600 p-1 rounded-full"
-                    >
-                        {/* Xボタン (Heroiconsより) */}
-                        <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
-                            <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
-                        </svg>
-                    </button>
+                    <div className="flex items-center gap-2">
+                        {/* 顧客詳細へのボタン（右上） */}
+                        {editingBooking.customerId && (
+                            <button
+                                onClick={(e) => {
+                                    e.stopPropagation();
+                                    handleNavigateToCustomer();
+                                }}
+                                className="group relative flex items-center gap-1.5 px-2.5 py-1.5 bg-white/20 hover:bg-white/30 text-white rounded-lg transition-all duration-150 border border-white/30 hover:border-white/50"
+                                title="顧客詳細を見る"
+                            >
+                                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={2} stroke="currentColor" className="w-4 h-4">
+                                    <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 11-7.5 0 3.75 3.75 0 017.5 0zM4.501 20.118a7.5 7.5 0 0114.998 0A17.933 17.933 0 0112 21.75c-2.676 0-5.216-.584-7.499-1.632z" />
+                                </svg>
+                                <span className="text-xs font-medium whitespace-nowrap">顧客</span>
+                                {/* ツールチップ */}
+                                <div className="absolute bottom-full right-0 mb-2 px-2 py-1 bg-gray-900 text-white text-xs rounded shadow-lg opacity-0 group-hover:opacity-100 transition-opacity duration-200 pointer-events-none whitespace-nowrap z-10">
+                                    顧客詳細を見る
+                                    <div className="absolute top-full right-4 w-0 h-0 border-l-4 border-r-4 border-t-4 border-transparent border-t-gray-900"></div>
+                                </div>
+                            </button>
+                        )}
+                        <button
+                           onClick={(e) => { 
+                                e.stopPropagation();
+                                onClose();
+                           }}
+                            className="text-gray-400 hover:text-gray-600 p-1 rounded-full"
+                        >
+                            {/* Xボタン (Heroiconsより) */}
+                            <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" className="w-6 h-6">
+                                <path strokeLinecap="round" strokeLinejoin="round" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
                 </div>
 
                 {/* --- ボディ --- */}

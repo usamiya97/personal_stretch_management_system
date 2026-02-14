@@ -4,6 +4,7 @@ import { CustomerModal } from "@/component/CustomerModal";
 import Sidebar from "@/component/Sidebar";
 import { apiClient } from "@/utils/apiClient";
 import { ReactEventHandler, useEffect, useMemo, useState } from "react";
+import { useSearchParams, useRouter } from "next/navigation";
 
 type Users = {
     id: string;
@@ -26,6 +27,8 @@ type Booking = {
 };
 
 export default function Customers () {
+    const router = useRouter();
+    const searchParams = useSearchParams();
     const [sidebarOpen,setSidebarOpen] = useState<boolean>(false);
     const [searchQuery,setSearchQuery] = useState<string>("");
     const [filterPeriod,setFilterPeriod] = useState<string>("all");
@@ -33,6 +36,7 @@ export default function Customers () {
     const [sortBy, setSortBy] = useState<string>('lastVisit'); 
     const [customerId,setCustomerId] = useState<string | null>("");
     const [bookingUsers, setBookingUser] = useState<Users[]>([]);
+    const [isLoading, setIsLoading] = useState<boolean>(true);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [successMessage, setSuccessMessage] = useState(null);
     const [customerBooking, setCustomerBooking] = useState<string | null>("");
@@ -61,6 +65,7 @@ export default function Customers () {
     });
 
     const getBookingUser = async () => {
+        setIsLoading(true);
         try {
             const response = await apiClient("/users");
             if (response.ok) {
@@ -76,12 +81,60 @@ export default function Customers () {
 
         } catch (e) {
             console.error("ユーザーデータ取得失敗" + e);
+        } finally {
+            setIsLoading(false);
         }
     }
 
     useEffect(() => {
         getBookingUser();
     },[])
+
+    // URLパラメータからcustomerIdを読み取り、モーダルを開く（「詳細」ボタンと同じ動作）
+    useEffect(() => {
+        const customerIdParam = searchParams.get('customerId');
+        if (customerIdParam) {
+            // 顧客データが読み込まれるまで待機
+            if (bookingUsers.length > 0) {
+                // 顧客が存在するか確認（数値と文字列の両方に対応）
+                const customer = bookingUsers.find(c => 
+                    c.id === customerIdParam || 
+                    String(c.id) === customerIdParam ||
+                    c.id === String(customerIdParam) ||
+                    Number(c.id) === Number(customerIdParam)
+                );
+                if (customer) {
+                    // 「詳細」ボタンと同じ動作：setCustomerIdを呼び出す
+                    setCustomerId(customer.id);
+                }
+            } else {
+                // 顧客データがまだ読み込まれていない場合、少し待ってから再試行
+                const timer = setTimeout(() => {
+                    const customer = bookingUsers.find(c => 
+                        c.id === customerIdParam || 
+                        String(c.id) === customerIdParam ||
+                        c.id === String(customerIdParam) ||
+                        Number(c.id) === Number(customerIdParam)
+                    );
+                    if (customer) {
+                        // 「詳細」ボタンと同じ動作：setCustomerIdを呼び出す
+                        setCustomerId(customer.id);
+                    }
+                }, 500);
+                return () => clearTimeout(timer);
+            }
+        }
+    }, [searchParams, bookingUsers]);
+
+    // モーダルを閉じる際にURLパラメータもクリア（スクロール位置を保持）
+    const handleCloseCustomerModal = () => {
+        setCustomerId(null);
+        // URLパラメータをクリア（ページ遷移せず、スクロール位置を保持）
+        const params = new URLSearchParams(searchParams.toString());
+        params.delete('customerId');
+        const newUrl = params.toString() ? `/customers?${params.toString()}` : '/customers';
+        router.replace(newUrl);
+    };
 
     const filteredAndSortedCustomers = useMemo(() => {
         let filtered = [...bookingUsers];
@@ -434,14 +487,27 @@ export default function Customers () {
                             </div>
 
                             {/* 結果数表示 */}
-                            <div className="text-sm text-gray-600 mt-3">
-                                {filteredAndSortedCustomers.length}件の顧客が見つかりました
-                            </div>
+                            {!isLoading && (
+                                <div className="text-sm text-gray-600 mt-3">
+                                    {filteredAndSortedCustomers.length}件の顧客が見つかりました
+                                </div>
+                            )}
                         </div>
 
+                        {/* ローディング表示 */}
+                        {isLoading && (
+                            <div className="flex items-center justify-center py-20">
+                                <div className="flex flex-col items-center gap-4">
+                                    <div className="h-16 w-16 animate-spin rounded-full border-4 border-gray-200 border-t-cyan-600"></div>
+                                    <p className="text-gray-600 font-medium">顧客データを読み込んでいます...</p>
+                                </div>
+                            </div>
+                        )}
+
                         {/* 顧客カードグリッド */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-5">
-                            {filteredAndSortedCustomers.map(customer => (
+                        {!isLoading && (
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 mt-5">
+                                {filteredAndSortedCustomers.map(customer => (
                                 <div
                                     key={customer.id}
                                     className="bg-white rounded-2xl shadow-lg border-2 border-cyan-200/50 hover:border-cyan-400 hover:shadow-xl transition-all duration-200 overflow-hidden group"
@@ -517,6 +583,7 @@ export default function Customers () {
                                     </div>
                                 ))}
                             </div>
+                        )}
 
                         </div>
                     </div>
@@ -648,7 +715,7 @@ export default function Customers () {
                             setSuccessMessage(data.success);
                     
                             // 成功した時だけモーダルを閉じる
-                            setCustomerId(null);
+                            handleCloseCustomerModal();
 
                             // 3秒後に消す
                             setTimeout(() => {

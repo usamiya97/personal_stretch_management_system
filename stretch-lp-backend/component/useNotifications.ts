@@ -39,9 +39,7 @@ export const useNotifications = () => {
 
                 if (response.ok) {
                     const responseData = await response.json() as NotificationApiResponse;
-
-                    console.log("APIから来たデータ:", responseData);
-
+                    
                     const list = responseData.notifications || [];
                     
                     // バックエンドのデータをフロント用に変換
