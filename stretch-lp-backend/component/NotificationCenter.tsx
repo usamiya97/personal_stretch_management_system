@@ -6,7 +6,7 @@ type Props = {
     unreadCount: number;
     onMarkAsRead: (id: string) => void;
     onMarkAllAsRead: () => void;
-    onSelectBooking: (bookingId: string) => void;
+    onSelectBooking: (bookingId: string,bookingDate: string) => void;
 };
 
 // アイコンをコンポーネントとして定義（再利用のため）
@@ -154,7 +154,7 @@ export const NotificationCenter = ({
                                         key={n.id}
                                         onClick={() => {
                                             onMarkAsRead(n.id);
-                                            onSelectBooking(n.bookingId);
+                                            onSelectBooking(n.bookingId,n.bookingDate);
                                             setIsOpen(false);
                                         }}
                                         className={`p-4 border-b border-gray-100 cursor-pointer transition-all hover:bg-gray-50 flex gap-3 ${

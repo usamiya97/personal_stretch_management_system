@@ -3,7 +3,7 @@
 import Sidebar from "@/component/Sidebar";
 import { BookingDetailModal } from "@/component/BookingDetailModal";
 import { apiClient } from "@/utils/apiClient";
-import { useMemo, useState, useRef, useEffect } from "react";
+import { useMemo, useState, useRef, useEffect} from "react";
 import { BackendBooking, CalendarEvent, Booking} from "../types";
 import { convertToCalendarEvents } from "@/utils/bookingExchange";
 import { NotificationCenter } from "@/component/NotificationCenter";
@@ -565,9 +565,15 @@ export default function BookingsWithDragDrop() {
                                         unreadCount={unreadCount}
                                         onMarkAsRead={markAsRead}
                                         onMarkAllAsRead={markAllAsRead}
-                                        onSelectBooking={(id) => {
+                                        onSelectBooking={(id,date) => {
+                                            const targetDate = new Date(date);
+                                            setCurrentDate(startOfDay(targetDate));
+
                                             // 予約IDから該当の予約を探してセットする処理
-                                            const target = bookingsState.find(b => b.id === id);
+                                            const targetId = String(id).startsWith('b') 
+                                                    ? String(id) 
+                                                    : `b${id}`;
+                                            const target = clientData.find(b => b.id === targetId);
                                             if(target) setSelectedBooking(target);
                                         }}
                                     />
