@@ -8,7 +8,7 @@ import { BackendBooking, CalendarEvent, Booking} from "../types";
 import { convertToCalendarEvents } from "@/utils/bookingExchange";
 import { NotificationCenter } from "@/component/NotificationCenter";
 import { useNotifications } from '@/component/useNotifications';
-import { startOfDay, addDays, isSameDay, formatYMD, generateTimeSlots, getDaysInMonth, getFirstDayOfMonth, formatMonthYear, isToday} from '@/utils/dateUtils';
+import { startOfDay, addDays, isSameDay, formatYMD, generateTimeSlots, getDaysInMonth, getFirstDayOfMonth, formatMonthYear, isToday, getMonthDateRange} from '@/utils/dateUtils';
 
 export default function BookingsWithDragDrop() {
     const [currentDate, setCurrentDate] = useState<Date>(startOfDay(new Date()));
@@ -37,15 +37,16 @@ export default function BookingsWithDragDrop() {
     const timeSlots = useMemo(() => generateTimeSlots(startHour, endHour), [startHour, endHour]);
     const totalRows = useMemo(() => (endHour - startHour) * 2 + 1, [startHour, endHour]);
 
-    const fetchBookings = async () => {
+    const fetchBookings = async (targetMonth: Date) => {
         try {
-            const response = await apiClient("/bookings");
+            const { startDate, endDate } = getMonthDateRange(targetMonth);
+            const response = await apiClient(`/bookings?startDate=${startDate}&endDate=${endDate}`);
             if (response.ok) {
                 let responseData = await response.json();
                 const bookingList: BackendBooking[] = responseData.bookingList;
+                console.log(bookingList);
                 const calendarEvents = convertToCalendarEvents(bookingList);
-                console.log(calendarEvents);
-                setClientData(calendarEvents);                 
+                setClientData(calendarEvents);
             } else {
                 if (response.status === 401) {
                     const errorData = await response.json();
@@ -60,10 +61,8 @@ export default function BookingsWithDragDrop() {
     }
 
     useEffect(() => {
-
-        fetchBookings();
-
-    }, [currentDate]);
+        fetchBookings(calendarMonth);
+    }, [calendarMonth]);
 
     // カレンダー外クリックで閉じる
     useEffect(() => {
@@ -130,7 +129,6 @@ export default function BookingsWithDragDrop() {
             x: e.clientX - rect.left,
             y: e.clientY - rect.top
         });
-        console.log(booking);
         setDraggedBooking(booking);
         setIsDragging(true);
         setMousePos({ x: e.clientX, y: e.clientY });
@@ -258,7 +256,7 @@ export default function BookingsWithDragDrop() {
             if (response.ok) {
                 console.log("更新成功");
                 const data = await response.json();
-                await fetchBookings();
+                await fetchBookings(calendarMonth);
                 setSuccessMessage(data.success);
 
                  // 3秒後に消す
@@ -302,7 +300,7 @@ export default function BookingsWithDragDrop() {
             if (response.ok) {
                 console.log("削除成功");
                 const data = await response.json();
-                await fetchBookings();
+                await fetchBookings(calendarMonth);
                 setSuccessMessage(data.success);
 
                  // 3秒後に消す
@@ -433,6 +431,7 @@ export default function BookingsWithDragDrop() {
                                                                 const prevMonth = new Date(calendarMonth);
                                                                 prevMonth.setMonth(prevMonth.getMonth() - 1);
                                                                 setCalendarMonth(prevMonth);
+                                                                console.log(calendarMonth);
                                                             }}
                                                         >
                                                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -448,6 +447,7 @@ export default function BookingsWithDragDrop() {
                                                                 const nextMonth = new Date(calendarMonth);
                                                                 nextMonth.setMonth(nextMonth.getMonth() + 1);
                                                                 setCalendarMonth(nextMonth);
+                                                                console.log(calendarMonth);
                                                             }}
                                                         >
                                                             <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
@@ -549,7 +549,9 @@ export default function BookingsWithDragDrop() {
                                                     <button
                                                         className="w-full px-4 py-2 bg-gradient-to-r from-cyan-500 to-blue-500 text-white rounded-lg hover:from-cyan-600 hover:to-blue-600 transition-all font-medium text-sm"
                                                         onClick={() => {
-                                                            setCurrentDate(startOfDay(new Date()));
+                                                            const today = new Date();
+                                                            setCurrentDate(startOfDay(today));
+                                                            setCalendarMonth(startOfDay(today));
                                                             setCalendarOpen(false);
                                                         }}
                                                     >

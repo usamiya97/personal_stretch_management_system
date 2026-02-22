@@ -87,3 +87,22 @@ export function isToday(date: Date) {
     const today = startOfDay(new Date());
     return isSameDay(date, today);
 }
+
+/**
+ * 指定された日付が含まれる月の、開始日と終了日を YYYY-MM-DD 形式で取得する
+ * APIのリクエストパラメータ生成用
+ */
+export function getMonthDateRange(date: Date) {
+    const year = date.getFullYear();
+    const month = date.getMonth();
+    
+    // その月の1日
+    const startOfMonth = new Date(year, month, 1);
+    // その月の末日（翌月の0日目を指定）
+    const endOfMonth = new Date(year, month + 1, 0);
+
+    return {
+        startDate: formatYMD(startOfMonth),
+        endDate: formatYMD(endOfMonth)
+    };
+}
