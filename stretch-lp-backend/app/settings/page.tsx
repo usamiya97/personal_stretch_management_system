@@ -7,6 +7,7 @@ import { useState } from "react";
 
 export default function Settings() {
     const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
+    const userRole = localStorage.getItem('userRole');
     
   return (
     <>

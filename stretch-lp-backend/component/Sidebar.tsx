@@ -3,6 +3,7 @@
 import { useRouter } from 'next/navigation';
 import { apiClient } from '../utils/apiClient';
 import Link from 'next/link';
+import { useEffect, useState } from 'react';
 
 const menuItems = [
     { label: '予約一覧', href: '/bookings' },
@@ -18,6 +19,14 @@ type SidebarProps = {
 export default function Sidebar({ onClose }: SidebarProps) {
     const router = useRouter();
 
+    const [userRole, setUserRole] = useState<string | null>(null);
+    // ★ 初回レンダリング後にLocalStorageから権限を取得する
+    useEffect(() => {
+        const role = localStorage.getItem('userRole');
+        console.log(role);
+        setUserRole(role);
+    }, []);
+
     // ログアウト処理
     const handleLogout = async (e: React.MouseEvent<HTMLAnchorElement>) => {
         e.preventDefault();
@@ -28,12 +37,20 @@ export default function Sidebar({ onClose }: SidebarProps) {
             });
 
             if (response.ok) {
+                localStorage.removeItem('userRole');
                 router.push('/');
             }
         } catch (e) {
             console.error('ログアウトエラー:', e);
         }
     };
+
+    const displayMenuItems = menuItems.filter(item => {
+        if (item.href === '/settings') {
+            return userRole === 'OWNER'; // OWNERのみ「設定」を残す
+        }
+        return true; // それ以外のメニューは常に表示
+    });
     return (
         <aside className="h-full w-full bg-slate-600 text-white px-5 py-8 flex flex-col">
 
@@ -54,7 +71,7 @@ export default function Sidebar({ onClose }: SidebarProps) {
 
 
             <nav className="flex-1 space-y-1">
-                {menuItems.map(item => (
+                {displayMenuItems.map(item => (
                     <Link
                         key={item.href}
                         href={item.href}

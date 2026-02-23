@@ -35,6 +35,7 @@ export default function TrainerLogin() {
         if (response.ok) {
             const data = await response.json();
             setAccessToken(data.accessToken);
+            localStorage.setItem('userRole', data.role.roleName);
             router.push('/bookings');
         } else {
             // ★ ステータスコードが 400 (BAD_REQUEST) の場合の処理
