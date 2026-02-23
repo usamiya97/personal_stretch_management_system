@@ -4,10 +4,15 @@ import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { setAccessToken } from "@/utils/apiClient";
 
+type ValidationErrors = {
+    [key: string]: string;
+};
 
 export default function TrainerLogin() {
     const [form,setForm] = useState({ userId:'', password:'' });
     const router = useRouter();
+    const [errors, setErrors] = useState<ValidationErrors>({});
+    const [globalError, setGlobalError] = useState('');
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
         setForm({...form,[e.target.name]: e.target.value});
@@ -32,12 +37,22 @@ export default function TrainerLogin() {
             setAccessToken(data.accessToken);
             router.push('/bookings');
         } else {
-            if (response.status === 401) {
+            // ★ ステータスコードが 400 (BAD_REQUEST) の場合の処理
+            if (response.status === 400) {
+                // 例: { "adminName": "ログインID（管理者名）は必須です", ... }
+                const validationErrors = await response.json();
+                setErrors(validationErrors);
+                return; // ここで処理を終了
+
+            // ★ ステータスコードが 401 (UNAUTHORIZED) の場合の処理（先ほど実装した独自例外）
+            } else if (response.status === 401) {
+                console.log(response.status)
                 const errorData = await response.json();
-                alert(errorData.failLogin || "ユーザー名またはパスワードが正しくありません。");
+                console.log(errorData);
+                setGlobalError(errorData.message); // "ログインIDまたはパスワードが間違っています。"
+                return;
             } else {
-                // その他のエラー（500 Internal Server Errorなど）
-                alert(`予期せぬエラーが発生しました: ${response.status}`);
+                throw new Error('予期せぬエラーが発生しました');
             }
         }
     };
@@ -68,6 +83,12 @@ export default function TrainerLogin() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-6">
+
+          {globalError && (
+            <div className="p-3 text-red-700 bg-red-100 rounded">
+                {globalError}
+            </div>
+          )}
           <div>
             <label 
               htmlFor="userId" 
@@ -84,6 +105,10 @@ export default function TrainerLogin() {
               className="w-full px-5 py-4 border-2 border-cyan-200 rounded-xl focus:ring-4 focus:ring-cyan-300/50 focus:border-cyan-400 outline-none transition-all bg-cyan-50/50 text-cyan-900 placeholder:text-cyan-400"
               placeholder="ユーザーIDを入力"
             />
+            {/* ★ バリデーションエラーがあれば表示 */}
+            {errors.adminName && (
+                <p className="mt-1 text-sm text-red-500">{errors.adminName}</p>
+            )}
           </div>
 
           <div>
@@ -102,6 +127,10 @@ export default function TrainerLogin() {
               className="w-full px-5 py-4 border-2 border-cyan-200 rounded-xl focus:ring-4 focus:ring-cyan-300/50 focus:border-cyan-400 outline-none transition-all bg-cyan-50/50 text-cyan-900 placeholder:text-cyan-400"
               placeholder="パスワードを入力"
             />
+            {/* ★ バリデーションエラーがあれば表示 */}
+            {errors.adminPassword && (
+                <p className="mt-1 text-sm text-red-500">{errors.adminPassword}</p>
+            )}
           </div>
 
           <button
