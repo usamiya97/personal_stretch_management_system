@@ -26,6 +26,10 @@ type Booking = {
     color?: string;
 };
 
+type ValidationErrors = {
+    [key: string]: string;
+};
+
 export default function Customers () {
     const router = useRouter();
     const searchParams = useSearchParams();
@@ -39,6 +43,7 @@ export default function Customers () {
     const [isLoading, setIsLoading] = useState<boolean>(true);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [successMessage, setSuccessMessage] = useState(null);
+    const [errors, setErrors] = useState<ValidationErrors>({});
     const [customerBooking, setCustomerBooking] = useState<string | null>("");
     const createTodayAtNine = () => {
         const d = new Date();
@@ -134,6 +139,11 @@ export default function Customers () {
         params.delete('customerId');
         const newUrl = params.toString() ? `/customers?${params.toString()}` : '/customers';
         router.replace(newUrl);
+    };
+
+    const handleCloseCreateModal = () => {
+        setIsCreateModalOpen(false);
+        setErrors({});
     };
 
     const filteredAndSortedCustomers = useMemo(() => {
@@ -304,11 +314,12 @@ export default function Customers () {
             }),
         });
 
-        if (!response.ok) {
-            console.error("ユーザーの保存に失敗しました");
-        }
-
         const data = await response.json();
+
+        if (!response.ok) {
+            setErrors(data);
+            return;
+        }
 
         console.log("登録成功");
         await getBookingUser();
@@ -319,7 +330,7 @@ export default function Customers () {
             phone: "",
             memo: ""
         });
-        setIsCreateModalOpen(false);
+        handleCloseCreateModal();
 
         // バックエンドからのメッセージを管理
         setSuccessMessage(data.success);
@@ -592,9 +603,7 @@ export default function Customers () {
                 {isCreateModalOpen && (
                     <div 
                         className="fixed inset-0 bg-black/50 backdrop-blur-sm flex items-center justify-center z-50"
-                        onClick={() => {
-                            setIsCreateModalOpen(false);
-                        }}
+                        onClick={handleCloseCreateModal}
                     >
                         <div 
                             className="bg-white rounded-xl shadow-xl w-full max-w-sm md:max-w-lg"
@@ -609,6 +618,9 @@ export default function Customers () {
                             {/* --- ボディ --- */}
                             <div className="p-6 space-y-6">
 
+                                {errors.name && (
+                                    <p className="mt-1 text-sm text-red-500">{errors.name}</p>
+                                )}
                                 {/* 名前 */}
                                 <div>
                                     <h4 className="text-sm font-medium text-gray-500">名前（必須）</h4>
@@ -675,7 +687,7 @@ export default function Customers () {
                                 </button>
                                 <button
                                     className="px-4 py-2 text-sm font-medium text-white bg-gray-600 rounded-lg hover:bg-gray-700"
-                                    onClick={() => setIsCreateModalOpen(false)}
+                                    onClick={handleCloseCreateModal}
                                 >
                                     キャンセル
                                 </button>

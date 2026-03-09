@@ -47,9 +47,7 @@ export default function TrainerLogin() {
 
             // ★ ステータスコードが 401 (UNAUTHORIZED) の場合の処理（先ほど実装した独自例外）
             } else if (response.status === 401) {
-                console.log(response.status)
                 const errorData = await response.json();
-                console.log(errorData);
                 setGlobalError(errorData.message); // "ログインIDまたはパスワードが間違っています。"
                 return;
             } else {
