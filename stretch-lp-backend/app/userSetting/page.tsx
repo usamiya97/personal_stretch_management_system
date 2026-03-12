@@ -12,6 +12,10 @@ type Trainer = {
     createdAt: string;
 }
 
+type ValidationErrors = {
+    [key: string]: string;
+};
+
 export default function UserSetting() {
     const [sidebarOpen, setSidebarOpen] = useState<boolean>(false);
     const [searchQuery, setSearchQuery] = useState<string>("");
@@ -20,6 +24,7 @@ export default function UserSetting() {
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);
     const [selectedTrainer, setSelectedTrainer] = useState<Trainer | null>(null);
     const [successMessage, setSuccessMessage] = useState<string | null>(null);
+    const [errors, setErrors] = useState<ValidationErrors>({});
     const [newTrainer, setNewTrainer] = useState({
         adminName: "",
         adminPassword: "",
@@ -84,11 +89,6 @@ export default function UserSetting() {
 
     // 新規トレーナー作成
     const createTrainer = async () => {
-        if (!newTrainer.adminName || !newTrainer.adminPassword) {
-            alert("ユーザー名とパスワードは必須です。");
-            return;
-        }
-
         try {
             const response = await apiClient("/setTrainers", {
                 method: "POST",
@@ -100,9 +100,8 @@ export default function UserSetting() {
             });
 
             if (!response.ok) {
-                console.error("トレーナーの作成に失敗しました");
                 const errorData = await response.json().catch(() => ({}));
-                alert(errorData.message || "トレーナーの作成に失敗しました。");
+                setErrors(errorData);
                 return;
             }
 
@@ -181,8 +180,6 @@ export default function UserSetting() {
         if (!confirm("このトレーナーを削除してもよろしいですか？")) {
             return;
         }
-
-        console.log(trainerId);
 
         try {
             const response = await apiClient(`/trainers/${trainerId}`, {
@@ -378,6 +375,9 @@ export default function UserSetting() {
                             <div className="p-6 space-y-6">
                                 {/* ユーザー名 */}
                                 <div>
+                                    {errors.adminName && (
+                                        <p className="mt-1 text-sm text-red-500">{errors.adminName}</p>
+                                    )}
                                     <h4 className="text-sm font-medium text-gray-500">ユーザー名（必須）</h4>
                                     <input
                                         type="text"
@@ -392,6 +392,9 @@ export default function UserSetting() {
 
                                 {/* パスワード */}
                                 <div>
+                                    {errors.adminPassword && (
+                                        <p className="mt-1 text-sm text-red-500">{errors.adminPassword}</p>
+                                    )}
                                     <h4 className="text-sm font-medium text-gray-500">パスワード（必須）</h4>
                                     <input
                                         type="password"
