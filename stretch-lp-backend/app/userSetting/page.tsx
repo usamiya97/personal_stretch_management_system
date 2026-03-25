@@ -8,7 +8,8 @@ type Trainer = {
     id: string;
     adminName: string;
     adminPassword?: string; // 表示時は非表示
-    role_id?: string;
+    roleId?: string;
+    adminEmail: string;
     createdAt: string;
 }
 
@@ -28,12 +29,14 @@ export default function UserSetting() {
     const [newTrainer, setNewTrainer] = useState({
         adminName: "",
         adminPassword: "",
-        role_id: ""
+        adminEmail: "",
+        roleId: ""
     });
     const [editTrainer, setEditTrainer] = useState({
         adminName: "",
         adminPassword: "",
-        role_id: ""
+        adminEmail: "",
+        roleId: ""
     });
 
     // トレーナー一覧取得
@@ -69,7 +72,7 @@ export default function UserSetting() {
             const query = searchQuery.toLowerCase();
             filtered = filtered.filter(trainer => 
                 trainer.adminName.toLowerCase().includes(query) ||
-                (trainer.role_id && trainer.role_id.toLowerCase().includes(query))
+                (trainer.roleId && trainer.roleId.toLowerCase().includes(query))
             );
         }
 
@@ -95,7 +98,7 @@ export default function UserSetting() {
                 body: JSON.stringify({
                     adminName: newTrainer.adminName,
                     adminPassword: newTrainer.adminPassword,
-                    role_id: newTrainer.role_id || undefined
+                    role_id: newTrainer.roleId || undefined
                 }),
             });
 
@@ -111,7 +114,8 @@ export default function UserSetting() {
             setNewTrainer({
                 adminName: "",
                 adminPassword: "",
-                role_id: ""
+                adminEmail: "",
+                roleId: ""
             });
             setIsCreateModalOpen(false);
 
@@ -143,9 +147,11 @@ export default function UserSetting() {
                 updateData.adminPassword = editTrainer.adminPassword;
             }
 
-            if (editTrainer.role_id !== undefined) {
-                updateData.email = editTrainer.role_id;
+            if (editTrainer.roleId !== undefined) {
+                updateData.email = editTrainer.roleId;
             }
+
+            console.log(updateData);
 
             const response = await apiClient("/updateAdminUser", {
                 method: "POST",
@@ -210,7 +216,8 @@ export default function UserSetting() {
         setEditTrainer({
             adminName: trainer.adminName,
             adminPassword: "",
-            role_id: trainer.role_id || ""
+            adminEmail: "",
+            roleId: trainer.roleId || ""
         });
         setIsEditModalOpen(true);
     }
@@ -314,12 +321,12 @@ export default function UserSetting() {
                                         <div className="p-4 space-y-3">
                                             {/* 基本情報 */}
                                             <div className="space-y-2 text-sm">
-                                                {trainer.role_id && (
+                                                {trainer.roleId && (
                                                     <div className="flex items-center gap-2 text-gray-700">
                                                         <svg className="w-4 h-4 text-cyan-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                                             <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z" />
                                                         </svg>
-                                                        <span className="truncate">{trainer.role_id}</span>
+                                                        <span className="truncate">{trainer.roleId}</span>
                                                     </div>
                                                 )}
                                                 <div className="flex items-center gap-2 text-gray-700">
@@ -411,9 +418,9 @@ export default function UserSetting() {
                                 <div>
                                     <h4 className="text-sm font-medium text-gray-500">権限（必須）</h4>
                                     <select
-                                        value={newTrainer.role_id}
+                                        value={newTrainer.roleId}
                                         onChange={(e) =>
-                                            setNewTrainer({ ...newTrainer, role_id: e.target.value })
+                                            setNewTrainer({ ...newTrainer, roleId: e.target.value })
                                         }
                                         className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 text-lg font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-gray-400 transition duration-150"
                                     >
@@ -495,9 +502,9 @@ export default function UserSetting() {
                                 <div>
                                     <h4 className="text-sm font-medium text-gray-500">権限（必須）</h4>
                                     <select
-                                        value={editTrainer.role_id}
+                                        value={editTrainer.roleId}
                                         onChange={(e) =>
-                                            setEditTrainer({ ...editTrainer, role_id: e.target.value })
+                                            setEditTrainer({ ...editTrainer, roleId: e.target.value })
                                         }
                                         className="w-full px-3 py-2 bg-white border border-gray-300 rounded-lg text-gray-700 text-lg font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 hover:border-gray-400 transition duration-150"
                                     >
